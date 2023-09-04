@@ -20,7 +20,7 @@ public class OrderRepository {
 
     public void addPartner(String partnerId) {
         DeliveryPartner deliveryPartner=new DeliveryPartner(partnerId);
-        partners.put(deliveryPartner.getId(),deliveryPartner);
+        partners.put(partnerId,deliveryPartner);
     }
 
     public void addOrderPartnerPair(String orderId, String partnerId) {
@@ -29,7 +29,8 @@ public class OrderRepository {
             al.add(orderId);
             partnerOrderPair.put(partnerId,al);
         }else{
-            partnerOrderPair.get(partnerId).add(orderId);
+            List<String>al=partnerOrderPair.get(partnerId);
+            al.add(orderId);
         }
     }
 

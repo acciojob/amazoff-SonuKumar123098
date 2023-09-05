@@ -47,11 +47,13 @@ public class OrderService {
     }
 
     public Integer getOrdersLeftAfterGivenTimeByPartnerId(String time, String partnerId) {
-        return orderRepository.getOrdersLeftAfterGivenTimeByPartnerId(time,partnerId);
+        int deliveryTime=Code.intTime(time);
+        return orderRepository.getOrdersLeftAfterGivenTimeByPartnerId(deliveryTime,partnerId);
     }
 
     public String getLastDeliveryTimeByPartnerId(String partnerId) {
-        return orderRepository.getLastDeliveryTimeByPartnerId(partnerId);
+        Integer time=orderRepository.getLastDeliveryTimeByPartnerId(partnerId);
+        return Code.stringTime(time);
     }
 
     public void deletePartnerById(String partnerId) {

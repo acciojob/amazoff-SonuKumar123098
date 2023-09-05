@@ -12,10 +12,9 @@ public class OrderRepository {
     HashMap<String,Order> orders=new HashMap<>();
     HashMap<String,DeliveryPartner>partners=new HashMap<>();
     HashMap<String, List<String>>partnerOrderPair=new HashMap<>();
-    List<String>orderList=new ArrayList<>();
+    HashMap<String,String>orderPartnerPair=new HashMap<>();
     public void addOrder(Order order) {
        orders.put(order.getId(),order);
-       orderList.add(order.getId());
     }
 
     public void addPartner(String partnerId) {
@@ -24,6 +23,9 @@ public class OrderRepository {
     }
 
     public void addOrderPartnerPair(String orderId, String partnerId) {
+        if(!orders.containsKey(orderId) || !partners.containsKey(partnerId)) return;
+        if(orderPartnerPair.containsKey(orderId))return;
+        orderPartnerPair.put(orderId,partnerId);
         if(!partnerOrderPair.containsKey(partnerId)){
             List<String>al=new ArrayList<>();
             al.add(orderId);
@@ -32,6 +34,8 @@ public class OrderRepository {
             List<String>al=partnerOrderPair.get(partnerId);
             al.add(orderId);
         }
+        DeliveryPartner part=partners.get(partnerId);
+        part.setNumberOfOrders(part.getNumberOfOrders()+1);
     }
 
     public Order getOrderById(String orderId) {
@@ -51,57 +55,59 @@ public class OrderRepository {
     }
 
     public List<String> getAllOrders() {
+        List<String>orderList=new ArrayList<>();
+        for(String key:orders.keySet())orderList.add(key);
         return orderList;
     }
 
     public Integer getCountOfUnassignedOrders() {
-        int cnt=0;
-        for(List<String>order:partnerOrderPair.values()){
-            cnt+=order.size();
-        }
-        return orderList.size()-cnt;
+        return orders.size()-orderPartnerPair.size();
     }
 
-    public Integer getOrdersLeftAfterGivenTimeByPartnerId(String time, String partnerId) {
-        int timeval=Code.intTime(time);
+    public Integer getOrdersLeftAfterGivenTimeByPartnerId(Integer time, String partnerId) {
         int left=0;
+        if(!partnerOrderPair.containsKey(partnerId)) return left;
         for(String orderId:partnerOrderPair.get(partnerId)){
-            if(orders.get(orderId).getDeliveryTime()>timeval) left++;
+            if(orders.get(orderId).getDeliveryTime()>time) left++;
         }
         return left;
     }
 
-    public String getLastDeliveryTimeByPartnerId(String partnerId) {
+    public Integer getLastDeliveryTimeByPartnerId(String partnerId) {
         int time=0;
         for(String orderId:partnerOrderPair.get(partnerId)){
             if(orders.get(orderId).getDeliveryTime()>time) time=orders.get(orderId).getDeliveryTime();
         }
-        return Code.stringTime(time);
+        return time;
     }
 
     public void deletePartnerById(String partnerId) {
-        partners.remove(partnerId);
-        partnerOrderPair.remove(partnerId);
+        if(partners.containsKey(partnerId)) partners.remove(partnerId);
+        List<String>order=new ArrayList<>();
+        if(partnerOrderPair.containsKey(partnerId)) {
+            order=partnerOrderPair.remove(partnerId);
+        }
+        for(String ord:order){
+            orderPartnerPair.remove(ord);
+        }
     }
 
     public void deleteOrderById(String orderId) {
-        orders.remove(orderId);
-        for(int i=0;i<orderList.size();i++){
-            if(orderList.get(i).equals(orderId)){
-                orderList.remove(i);
-                break;
-            }
-        }
-        for(List<String>order:partnerOrderPair.values()){
-            if(order.contains(orderId)){
-                for(int i=0;i<order.size();i++){
-                    if(order.get(i).equals(orderId)){
-                        order.remove(i);
+        if (orders.containsKey(orderId)){
+            orders.remove(orderId);
+            if(orderPartnerPair.containsKey(orderId)){
+                String partnerId=orderPartnerPair.remove(orderId);
+                List<String>al=partnerOrderPair.get(partnerId);
+                for(int i=0;i<al.size();i++){
+                    if(al.get(i).equals(orderId)){
+                        al.remove(i);
                         break;
                     }
                 }
-                break;
             }
         }
+
     }
+
+
 }

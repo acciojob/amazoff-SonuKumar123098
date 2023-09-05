@@ -2,23 +2,17 @@ package com.driver;
 
 public class Code {
     public static int intTime(String deliveryTime){
+        String[]time=deliveryTime.split(":");
         int val=0;
-        val+=(int)(deliveryTime.charAt(0)-'0')*10;
-        val+=(int)(deliveryTime.charAt(1)-'0');
-        val*=60;
-        val+=(int)(deliveryTime.charAt(3)-'0')*10;
-        val+=(int)(deliveryTime.charAt(4)-'0');
+        val+=Integer.parseInt(time[0])*60;
+        val+=Integer.parseInt(time[1]);
         return  val;
     }
     public static String stringTime(int deliveryTime){
-        String hour="";
-        int h=deliveryTime/60;
-        int min=deliveryTime%60;
-        String minute="";
-        if(h>=10) hour+=h;
-        else hour+=("0"+h);
-        if(min>=10) minute+=min;
-        else minute+=("0"+min);
-        return hour+":"+minute;
+        String HH=String.valueOf(deliveryTime/60);
+        if(HH.length()<2) HH='0'+HH;
+        String MM=String.valueOf(deliveryTime%60);
+        if (MM.length()<2) MM='0'+MM;
+        return HH+':'+MM;
     }
 }
